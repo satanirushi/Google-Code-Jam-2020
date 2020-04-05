@@ -1,74 +1,161 @@
+#include <bits/stdc++.h>
 
-from itertools import combinations
-import numpy as np
-import sys
-
-def complement(bits): return [
-    '_' if b is '_' else 
-    '1' if b=='0' else '0' 
-    for b in bits
-]
-
-class QuantumArray():
-    def __init__(self, B):
-        self.bits = ['_'] * B
-        self.unkowns = list(range(B))
-        self.read(10)
-        self.run()
-
-    def read(self, n):
-        for _ in range(n):
-            i = self.unkowns.pop()
-            self.bits[i] = self.read_bit(i+1)
-            self.unkowns.reverse()
-        self.update_states()
-
-    def read_bit(self, i):
-        print(i, flush=True)
-        return input()
-
-    def update_states(self):
-        bits_c  = complement(self.bits)
-        bits_cr = bits_c[::-1]
-        bits_r  = complement(bits_cr)
-        self.states = [self.bits, bits_c, bits_cr, bits_r]
-
-    def get_test_idx(self):
-        candidates = set(range(B)) - set(self.unkowns)
-        max_states = len(set(map(tuple, self.states)))
-        for idx in combinations(candidates, 2):
-            num_states = len(set(
-                tuple(np.take(state, idx))
-                for state in self.states
-            ))
-            if num_states == max_states: return idx
-
-    def collapse_states(self):        
-        test_idx = self.get_test_idx()
-        test = [self.read_bit(i+1) for i in test_idx]
-
-        # print('bits :', ''.join(self.bits), file=sys.stderr)
-        # print('c    :', ''.join(self.bits_c), file=sys.stderr)
-        # print('cr   :', ''.join(self.bits_cr), file=sys.stderr)
-        # print('r    :', ''.join(self.bits_r), file=sys.stderr)
-        # print('test :', test_idx, test, file=sys.stderr)
-        
-        self.bits = next(state
-            for state in self.states
-            if test == list(np.take(state, test_idx))
-        )
-
-    def run(self):
-        while True:
-            self.collapse_states()
-            try: self.read(8)
-            except IndexError: break
-    
-
-T, B = map(int, input().split())
-print('B:', B, file=sys.stderr)
-for _ in range(T): 
-    array = QuantumArray(B)
-    print('guess:', ''.join(array.bits), file=sys.stderr)
-    print(''.join(array.bits), flush=True)
-    if input() == 'N': sys.exit()
+using namespace std;
+int overlap(int l1, int r1, int l2, int r2)
+{
+    return (l2 < r1);
+}
+void check(int s, int e, int bit[], int b)
+{
+    int bit1[b+1] = {0}; //rev
+    int bit2[b+1] = {0}; // com
+    int bit3[b+1] = {0}; // rev and comp
+    int bit4[b+1] = {0};
+    int i;
+    for(i=s;i<=e;i++)
+    {
+        bit1[i] = bit[b+1-i];
+        bit2[i] = 1-bit[i];
+        bit3[i] = 1 - bit[b+1-i];
+        bit4[i] = bit[i];
+    } // bit1[i] != bit3[i],  bit2[i] != bit4[i]
+    cout << s << '\n';
+    int bt;
+    cin >> bt; // bt must be equal to bit1[i], bit2[i], bit3[i], bit4[i]
+    if(bt == bit1[s])
+        for(i=s;i<=e;i++)
+            bit3[i] = bit1[i];
+    else
+        for(i=s;i<=e;i++)
+            bit1[i] = bit3[i];
+    if(bt == bit2[s])
+        for(i=s;i<=e;i++)
+            bit4[i] = bit2[i];
+    else
+        for(i=s;i<=e;i++)
+            bit2[i] = bit4[i];
+    for(i=(s+1);i<=e;i++)
+        if(bit1[i] != bit2[i])
+            break;
+    if(i != (e+1))
+    {
+        cout << i << '\n';
+        cin >> bt;
+        if(bt == bit1[i])
+            for(i=s;i<=e;i++)
+                bit2[i] = bit1[i];
+        else
+            for(i=s;i<=e;i++)
+                bit1[i] = bit2[i]; 
+    }
+    else
+    {
+        cout << e << '\n';
+        cin >> bt;
+    }
+    for(i=s;i<=e;i++)
+        bit[i] = bit1[i];
+}
+void func(int s, int e, int bit[])
+{
+    for(int i=s;i<=e;i++)
+    {
+        cout << i << '\n';
+        int bt;
+        cin >> bt;
+        bit[i] = bt;
+    }
+}
+int main() {
+    int t, b;
+    cin >> t >> b;
+    for(int l = 1;l<=t;l++)
+    {
+        int i;
+        if(b == 10)
+        {
+            int bit[b];
+            for(i=0;i<b;i++)
+            {
+                cout << (i+1) << '\n';
+                int bt;
+                cin >> bt;
+                bit[i] = bt;
+            }
+            for(i=0;i<b;i++)
+                cout << bit[i];
+            cout << '\n';
+            char c;
+            cin >> c;
+        }
+        else if(b == 20)
+        {
+            int bit[b+1] = {0};
+            for(i=6;i<=15;i++)
+            {
+                cout << i << '\n';
+                int bt;
+                cin >> bt;
+                bit[i] = bt;
+            }
+            check(6, 15, bit, b);
+            // 12 queries done
+            for(i=2;i<=5;i++)
+            {
+                cout << i << '\n';
+                int bt;
+                cin >> bt;
+                bit[i] = bt;
+            }
+            for(i=16;i<=19;i++)
+            {
+                cout << i << '\n';
+                int bt;
+                cin >> bt;
+                bit[i] = bt;
+            }
+            check(2, 19, bit, b);
+            // 22 queries done
+            cout << 1 << '\n';
+            int bt;
+            cin >> bt;
+            bit[1] = bt;
+            cout << 20 << '\n';
+            cin >> bt;
+            bit[20] = bt;
+            // 24 queries done            
+            for(i=1;i<=b;i++)
+                cout << bit[i];
+            cout << '\n';
+            char c;
+            cin >> c;
+        }
+        else
+        {
+            int bit[b+1] = {0};
+            int j;
+            func(46, 55, bit);
+            check(46, 55, bit, b);
+            // 12 queries
+            for(i=42,j=56;i>=2,j<=96 ;i=i-4,j=j+4)
+            {
+                func(i, i+3, bit);
+                func(j, j+3, bit);
+                check(i, j+3, bit, b);
+            }
+            int bt;
+            cout << 1 << '\n';
+            cin >> bt;
+            bit[1] = bt;
+            cout << 100 << '\n';
+            cin >> bt;
+            bit[100] = bt;
+            // 24 queries done            
+            for(i=1;i<=b;i++)
+                cout << bit[i];
+            cout << '\n';
+            char c;
+            cin >> c;
+        }
+    }
+}
