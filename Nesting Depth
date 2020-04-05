@@ -1,34 +1,41 @@
-def paran(t,result,prev):
-    if prev != '' and t != '':
-        if int(prev) > int(t[0]):
-            for i in range(int(prev)-int(t[0])):
-                result = result + ')'
-    if t == '':
-        for i in range(int(prev)):
-            result = result + ')'
-        return result
-    if int(t[0]) == 0:
-        return paran(t[1:],result + t[0],t[0])
-    if int(t[0]) == 1:
-        if prev != '':
-            if int(prev) == 0:
-                result = result + '(' + t[0]
-            else:
-                result = result + t[0]
-        else:
-            result = result + '(' + t[0]
-        return paran(t[1:],result,t[0])
-    if int(t[0]) > 1:
-        if prev != '':
-            for i in range(int(t[0]) - int(prev)):
-                result = result + '('
-            result = result + t[0]
-        else:
-            for i in range(int(t[0])):
-                result = result + '('
-            result = result + t[0]
-        return paran(t[1:],result,t[0])
-t = int(input())
-for m in range(0,t):
-    k = input()
-    print('Case #{}: {}'.format(m + 1,paran(k,'',''))) 
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+    for(int l = 1;l<=t;l++)
+    {
+        string s;
+        cin >> s;
+        string ans = "";
+        int i, j, open = 0, prev = 0;
+        for(i=0;i<s.size();i++)
+        {
+            int x = s[i] - '0';
+            if(x > prev)
+            {
+                for(j=1;j<=(x-prev);j++)
+                    ans+='(', open++;
+                ans+=s[i]; 
+                prev = x;
+            }
+            else if(x < prev)
+            {
+                for(j=1;j<=prev-x;j++)
+                    ans+=')', open--;
+                ans+=s[i];
+                prev = x;
+            }
+            else
+                ans+=s[i];
+        }
+        while(open > 0)
+        {
+            ans+=')';
+            open--;
+        }
+        cout << "Case #"<<l<<": " << ans << '\n';
+    }
+}
